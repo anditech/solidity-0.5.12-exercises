@@ -15,7 +15,7 @@ contract HelloPerson{
     
     // Create an event that is called personUpdated. This will be called whenever someone updates their information in the mapping. 
     // It should contain both the new information and the old information.
-    event personUpdated(string name, uint age, uint height, bool senior);
+    event personUpdated(string name, uint age, uint height, bool senior, string, uint, uint, bool );
     
     // variable to set the owner
     address public owner;
@@ -40,55 +40,49 @@ contract HelloPerson{
     // all of the addresses that has been used to create people in the mapping
     address [] private creators;
     
-    function createPerson (string memory name, uint age, uint height) public {
-        require(age <= 150, "Age needs to be  below 150");
+    function createPerson (string memory _name, uint _age, uint _height) public {
+        require(_age <= 150, "Age needs to be  below 150");
         
-    // This creates a person     
-       Person memory newPerson;
-       newPerson.name = name;
-       newPerson.age = age;
-       newPerson.height = height;
-       
-    // Creates a condition to know if the person is a senior or not
-       if(age >= 65) {
-           newPerson.senior = true;
-       }
-       else {
-           newPerson.senior = false;
-       }
-       
-       // calling insertPerson function and adding people to the array
-       insertPerson(newPerson);
+    // This block creates a person with a condition age == 0 that makes sure it is a new entry in the mapping      
+        if (people[msg.sender].age == 0){
+            
+           people[msg.sender].name = _name;
+           people[msg.sender].age = _age;
+           people[msg.sender].height = _height;
+        
+           if(_age >= 65) {
+               people[msg.sender].senior = true;
+           } else {people[msg.sender].senior = false;
+           }
+    // Calling event personCreated 
+            emit personCreated(_name, people[msg.sender].senior);
+        
+        // This block updates the person
+            } else {
+                
+              string memory oldName = people[msg.sender].name;
+              uint oldAge = people[msg.sender].age;
+              uint oldHeight = people[msg.sender].height;
+              bool oldSenior = people[msg.sender].senior;
+              
+              people[msg.sender].name = _name;
+              people[msg.sender].age = _age;
+              people[msg.sender].height = _height;
+              
+              if(_age >= 65) {
+               people[msg.sender].senior = true;
+           } else {people[msg.sender].senior = false;
+           }
+           
+        // calling the event personUpdated with the old and new information    
+             emit personUpdated(oldName, oldAge, oldHeight, oldSenior, people[msg.sender].name, people[msg.sender].age, people[msg.sender].height, people[msg.sender].senior);  
+            }
+            
+    //  insertPerson(newPerson);
+    // Adding peolple to the mapping 
        creators.push(msg.sender);
-       
-    // here we use assert to compare that people[msg.sender] == newPerson and we need to encode both  hashing them
-       assert(
-           keccak256(
-               abi.encodePacked(
-                   people[msg.sender].name, 
-                   people[msg.sender].age, 
-                   people[msg.sender].height, 
-                   people[msg.sender].senior 
-                )
-            ) == 
-            keccak256(
-                abi.encodePacked(
-                    newPerson.name, 
-                    newPerson.age, 
-                    newPerson.height, 
-                    newPerson.senior
-                )
-            )
-        );
-        
-        // Emit event with the data we want to send with it
-        emit personCreated(newPerson.name, newPerson.senior);
-        
-        // modify this function so that if the msg.sender updates their information, we should emit a personUpdated event instead.
-        emit personUpdated(newPerson.name, newPerson.age, newPerson.height, newPerson.senior);
-        
-    }
-    
+           }
+
     // create private function that will run on function createPerson
     function insertPerson (Person memory newPerson) private {
         
