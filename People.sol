@@ -33,7 +33,7 @@ contract People is Ownable, Destroyable {
     address [] private creators;
     
     
-    // This function will charge ETH to create a person => add keyword "payable" 
+    // This function will charge ETH to create a person => add keyword "payable"
     function createPerson (string memory name, uint age, uint height) public payable costs(100 wei) {
         require(age <= 150, "Age needs to be  below 150");
         
