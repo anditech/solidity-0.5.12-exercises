@@ -11,8 +11,8 @@ contract Workers is People {
         require(_age <= 75);
         createPerson( _name, _age, _height);
         salary[msg.sender] = _salary;
-        bosses.push(msg.sender);
-    }  
+    } 
+    
     //  Implement a fire function, which removes the worker from the contract.     
     function fireWorker(address _worker) public {
         deletePerson(_worker);
