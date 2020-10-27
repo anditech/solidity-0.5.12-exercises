@@ -33,8 +33,8 @@ contract People is Ownable, Destroyable {
     address [] private creators;
     
     
-    // This function will charge ETH to create a person => add keyword "payable"
-    function createPerson (string memory name, uint age, uint height) public payable costs(100 wei) {
+    // Internal function which allow us to create a worker in Workers contract
+    function createPerson (string memory name, uint age, uint height) internal {
         require(age <= 150, "Age needs to be  below 150");
         
         balance += msg.value; // balance = balance + msg.value
@@ -91,18 +91,19 @@ contract People is Ownable, Destroyable {
         people[creator] = newPerson; 
     }
     
-    function getPerson() public view returns(string memory name, uint age, uint height, bool senior){
+    function getPerson() external view returns(string memory name, uint age, uint height, bool senior){
        address creator = msg.sender; 
        return (people[creator].name, people[creator].age, people[creator].height, people[creator].senior);
     }
     
-    // delete function only accessible to the owner of the contract 
-    function deletePerson(address creator) public onlyOwner {
+    // delete function that is called in Workers contract to fire workers  
+    function deletePerson(address creator) public {
         string memory name = people[creator].name;
         bool senior = people[creator].senior;
         
-        delete people[creator];
-        // assert here means that the moment we delete a person the age result should be 0
+        // When firing a worker we delete the creator of the address
+        delete(people[creator]);
+     
         assert(people[creator].age == 0);
         emit personDeleted(name, senior, msg.sender);
     }
