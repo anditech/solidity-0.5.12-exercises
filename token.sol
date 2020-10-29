@@ -53,7 +53,7 @@ contract ERC20 is Ownable {
     function transfer(address _recipient, uint256 _amount) public returns (bool) {
         require(msg.sender != address(0), "Caller can not be Account 0");
         require(_recipient != address(0), "Recipient can not be Addres 0");
-        require(_balances[msg.sender] >= _amount);
+        require(_balances[msg.sender] >= _amount, "Insufficient balance");
         
         _balances[msg.sender] = _balances[msg.sender] - _amount; 
         _balances[_recipient] = _balances[_recipient] + _amount;
